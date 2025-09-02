@@ -122,6 +122,7 @@ mod tests {
             },
             original_response: None,
             finish_reason: None,
+            provider_name: None,
         });
         let result = run_exact_match_evaluator(&inference_response, &datapoint).unwrap();
         assert_eq!(result, Some(Value::Bool(true)));
@@ -140,6 +141,7 @@ mod tests {
             },
             original_response: None,
             finish_reason: None,
+            provider_name: None,
         });
         let result = run_exact_match_evaluator(&inference_response, &datapoint).unwrap();
         assert_eq!(result, Some(Value::Bool(false)));
@@ -222,6 +224,7 @@ mod tests {
             },
             original_response: None,
             finish_reason: None,
+            provider_name: None,
         });
         let result = run_exact_match_evaluator(&inference_response, &datapoint).unwrap();
         assert_eq!(result, Some(Value::Bool(true)));
@@ -241,6 +244,7 @@ mod tests {
             },
             original_response: None,
             finish_reason: None,
+            provider_name: None,
         });
         let result = run_exact_match_evaluator(&inference_response, &datapoint).unwrap();
         assert_eq!(result, Some(Value::Bool(false)));

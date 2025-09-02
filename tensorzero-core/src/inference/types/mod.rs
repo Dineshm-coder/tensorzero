@@ -1073,6 +1073,12 @@ impl ProviderInferenceResponse {
 }
 
 impl InferenceResult {
+    pub fn provider_name(&self) -> Option<String> {
+        match self {
+            InferenceResult::Chat(result) => result.model_inference_results.first().map(|r| r.model_provider_name.to_string()),
+            InferenceResult::Json(result) => result.model_inference_results.first().map(|r| r.model_provider_name.to_string()),
+        }
+    }
     pub fn model_inference_results(&self) -> &Vec<ModelInferenceResponseWithMetadata> {
         match self {
             InferenceResult::Chat(chat_result) => &chat_result.model_inference_results,
