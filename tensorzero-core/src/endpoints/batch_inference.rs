@@ -883,10 +883,12 @@ pub async fn write_completed_batch_inference<'a>(
                 None,
             )
             .await?;
+        let provider_name = inference_result.provider_name();
         let inference_response = InferenceResponse::new(
             inference_result.clone(),
             episode_id,
             variant_name.to_string(),
+            provider_name,
         );
         inferences.push(inference_response);
         let metadata = InferenceDatabaseInsertMetadata {
@@ -1215,6 +1217,8 @@ impl TryFrom<ChatInferenceResponseDatabaseRead> for ChatInferenceResponse {
             // This is currently unsupported in the batch API
             original_response: None,
             finish_reason: value.finish_reason,
+            // Provider name not available in batch API
+            provider_name: None,
         })
     }
 }
@@ -1252,6 +1256,8 @@ impl TryFrom<JsonInferenceResponseDatabaseRead> for JsonInferenceResponse {
             // This is currently unsupported in the batch API
             original_response: None,
             finish_reason: value.finish_reason,
+            // Provider name not available in batch API
+            provider_name: None,
         })
     }
 }

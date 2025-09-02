@@ -580,6 +580,7 @@ mod tests {
                 original_response: None,
                 finish_reason: None,
                 episode_id: Uuid::now_v7(),
+                provider_name: None,
             }),
             &Datapoint::Chat(ChatInferenceDatapoint {
                 dataset_name: "foo".to_string(),
@@ -648,6 +649,7 @@ mod tests {
                 original_response: None,
                 finish_reason: None,
                 episode_id: Uuid::now_v7(),
+                provider_name: None,
             }),
             &Datapoint::Chat(ChatInferenceDatapoint {
                 dataset_name: "foo".to_string(),
@@ -1065,6 +1067,7 @@ mod tests {
                 original_response: None,
                 finish_reason: None,
                 episode_id: Uuid::now_v7(),
+                provider_name: None,
             }),
             &Datapoint::Chat(ChatInferenceDatapoint {
                 dataset_name: "dataset".to_string(),
@@ -1178,6 +1181,7 @@ mod tests {
                 original_response: None,
                 finish_reason: None,
                 episode_id: Uuid::now_v7(),
+                provider_name: None,
             }),
             &Datapoint::Json(JsonInferenceDatapoint {
                 dataset_name: "dataset".to_string(),

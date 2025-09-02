@@ -481,7 +481,8 @@ pub async fn inference<T: Send + 'static>(
                 result.set_original_response(None);
             }
 
-            let response = InferenceResponse::new(result, episode_id, variant_name);
+            let provider_name = result.provider_name();
+            let response = InferenceResponse::new(result, episode_id, variant_name, provider_name);
 
             return Ok(InferenceOutput::NonStreaming(response));
         }
@@ -744,6 +745,7 @@ fn prepare_response_chunk(
         metadata.cached,
         metadata.include_original_response,
         extra_usage,
+        Some(metadata.model_provider_name.to_string()),
     )
 }
 
@@ -914,6 +916,8 @@ pub struct ChatInferenceResponse {
     pub original_response: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub finish_reason: Option<FinishReason>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub provider_name: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, ts_rs::TS)]
@@ -928,10 +932,12 @@ pub struct JsonInferenceResponse {
     pub original_response: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub finish_reason: Option<FinishReason>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub provider_name: Option<String>,
 }
 
 impl InferenceResponse {
-    pub fn new(inference_result: InferenceResult, episode_id: Uuid, variant_name: String) -> Self {
+    pub fn new(inference_result: InferenceResult, episode_id: Uuid, variant_name: String, provider_name: Option<String>) -> Self {
         let usage = inference_result.usage_considering_cached();
         match inference_result {
             InferenceResult::Chat(result) => InferenceResponse::Chat(ChatInferenceResponse {
@@ -942,6 +948,7 @@ impl InferenceResponse {
                 usage,
                 original_response: result.original_response,
                 finish_reason: result.finish_reason,
+                provider_name,
             }),
             InferenceResult::Json(result) => {
                 let InternalJsonInferenceOutput { raw, parsed, .. } = result.output;
@@ -954,6 +961,7 @@ impl InferenceResponse {
                     usage,
                     original_response: result.original_response,
                     finish_reason: result.finish_reason,
+                    provider_name,
                 })
             }
         }
@@ -1027,6 +1035,8 @@ pub struct ChatInferenceResponseChunk {
     pub finish_reason: Option<FinishReason>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub original_chunk: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub provider_name: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1039,6 +1049,8 @@ pub struct JsonInferenceResponseChunk {
     pub usage: Option<Usage>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub finish_reason: Option<FinishReason>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub provider_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub original_chunk: Option<String>,
 }
@@ -1057,6 +1069,7 @@ impl InferenceResponseChunk {
         cached: bool,
         include_original_response: bool,
         extra_usage: &mut Option<Usage>,
+        provider_name: Option<String>,
     ) -> Option<Self> {
         let mut result_usage = if cached {
             // When our outer inference result is cached, don't
@@ -1096,6 +1109,7 @@ impl InferenceResponseChunk {
                     usage: result_usage,
                     finish_reason: result.finish_reason,
                     original_chunk: include_original_response.then_some(result.raw_response),
+                    provider_name: provider_name.clone(),
                 })
             }
             InferenceResultChunk::Json(result) => {
@@ -1112,6 +1126,7 @@ impl InferenceResponseChunk {
                     usage: result_usage,
                     finish_reason: result.finish_reason,
                     original_chunk: include_original_response.then_some(result.raw_response),
+                    provider_name,
                 })
             }
         })
